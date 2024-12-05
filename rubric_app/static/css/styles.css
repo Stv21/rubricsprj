@@ -1,0 +1,178 @@
+/* Global Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+     /* Ensure content is not hidden under the fixed navbar */
+}
+
+/* Navbar Styling 
+.navbar {
+    background-color: #333;
+    padding: 10px 20px;
+    color: white;
+    position: fixed;  
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000; 
+    box-sizing: border-box;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    margin: 0 15px;
+    padding: 10px;
+}
+*/
+/* Sidebar Styling */
+.sidebar {
+    width: 220px;
+    background-color: #333;
+    color: white;
+    position: fixed; /* Keeps sidebar fixed on the left */
+    top: 80px; /* Push the sidebar down to make space for the navbar */
+    left: 0;
+    height: 100%; /* Full height of the content */
+    min-height: 100vh; /* Minimum height of the viewport */
+    background-color: #343a40;
+    padding-top: 20px;
+    box-sizing: border-box;
+    transition: left 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1; /* Allow sidebar content to grow */
+}
+
+.sidebar ul li {
+    padding: 10px 20px;
+    background-color: #992f2f;
+    border-bottom: 1px solid #444;
+}
+
+.sidebar ul li a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    font-weight: bold;
+}
+
+.sidebar ul li a:hover {
+    background-color: #555;
+}
+
+/* Main Content Styles */
+.main-content {
+    margin-left: 200px; /* Sidebar width */
+    padding: 35px;
+    transition: margin-left 0.3s ease;
+}
+.content{
+    margin-left: 160px; /* Sidebar width */
+   
+    transition: margin-left 0.3s ease;
+}
+
+.sidebar.open + .main-content {
+    margin-left: 0;
+}
+
+/* Header and Typography */
+h1, h2 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+p {
+    color: #666;
+    line-height: 1.6;
+}
+
+/* Buttons */
+button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+/* Move Logout to the bottom */
+.sidebar .logout {
+    margin-top: auto; /* Pushes logout to the bottom */
+    padding: 10px 20px;
+    background-color: #992f2f;
+    text-align: center;
+}
+
+.sidebar .logout a {
+    color: white;
+    text-decoration: none;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
+}
+
+/* List Styles */
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+ul li {
+    padding: 10px;
+    margin: 5px 0;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+}
+
+/* Footer Styles */
+.footer {
+    background-color: #f1f1f1;
+    padding: 20px 0;
+    text-align: center;
+    width: 100%;
+    bottom: 0;
+    
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        position: relative; /* Remove fixed positioning on smaller screens */
+    }
+
+    .sidebar {
+        position: relative; /* Make sidebar scroll with the page */
+        height: auto; /* Remove fixed height for smaller screens */
+        width: 100%; /* Sidebar takes full width */
+        top: 0;
+    }
+
+    .main-content {
+        margin-left: 0; /* No left margin on smaller screens */
+        margin-top: 120px; /* Ensure content is not behind the navbar */
+    }
+
+    /* Additional adjustment for sidebar to behave better on small screens */
+    .sidebar ul li {
+        padding: 10px;
+        text-align: center;
+    }
+
+    .navbar-nav {
+        display: flex;
+        justify-content: space-between;
+    }
+}

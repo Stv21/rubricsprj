@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Login - Xavier Institute of Engineering{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Login - Xavier Institute of Engineering</title>
+    {% load static %}  <!-- Load static files -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}"> 
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Background container */
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("{% static 'img/bg.png' %}");
+            background-size: cover;
+            background-position: center;
+            filter: blur(3px); /* Apply blur to the background */
+            z-index: 1;
+        }
+
+        /* Add an overlay for better contrast */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4); /* A dark translucent layer */
+            z-index: 2;
+        }
+
+        /* Container for the form */
+        .login-container {
+            background-color: rgba(189, 244, 231, 0.85); /* Slightly transparent white background */
+            border-radius: 10px;
+            padding: 40px;
+            width: 485px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+            z-index: 3; /* Place the login container above the background and overlay */
+        }
+
+        /* Center the login container */
+        body {
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Logo */
+        .logo img {
+            width: 90px;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #3e2b81;
+        }
+
+        /* Dropdown for year selection */
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        /* Input fields */
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        /* Submit Button */
+        .login-btn {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .login-btn:hover {
+            background-color: #45a049;
+        }
+
+        /* Forgot Password link */
+        .forgot-password {
+            display: block;
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .forgot-password:hover {
+            color: #3e2b81;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Background with blur -->
+    <div class="background"></div>
+
+    <!-- Dark overlay -->
+    <div class="overlay"></div>
+
+    <!-- Login container -->
+    <div class="login-container">
+        <div class="logo">
+            <img src="{% static 'img/logo.png' %}" alt="Xavier Institute of Engineering">
+        </div>
+        <div class="title">Xavier Institute of Engineering</div>
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+        <p>Not a student? <a href="{% url 'teacher_login' %}">Login as a teacher</a></p>
+        <p>Don't have an account? <a href="{% url 'student_register' %}">Register as a student</a></p>
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</body>
+</html>
+{% endblock %}

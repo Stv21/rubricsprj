@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% block title %}Student Dashboard{% endblock %}
+{% block content %}
+{% load static %}
+
+<!-- Main Content -->
+
+<!-- Header -->
+<div class="header">
+    <h1 class="dashboard-title">Student Dashboard</h1>
+    <button id="joinClassroomBtn" class="btn btn-success">Join Classroom</button>
+</div>
+
+<!-- Classroom List -->
+<div class="dashboard-container">
+    <h2>Your Classrooms</h2>
+    <div class="classroom-container">
+        {% for classroom in classrooms %}
+            <div class="class1">
+                <!-- Classroom Header with Background Image -->
+                <div class="up" style="background: url('/static/img/img_code.jpg'); background-size: cover; background-position: center; height: 150px;">
+                    <div class="overlay">
+                        <p style="color: white; padding-right: 40px">Subject: {{ classroom.subject }}</p> 
+                    </div>
+                    <!-- Single Letter Circle on the Right -->
+                    <div class="class_id">{{ classroom.name|slice:":1" }}</div>
+                </div>
+                <!-- Classroom Details -->
+                <div class="class_details">
+                    <h3>{{ classroom.name }}</h3>
+                    <p class="students-enrolled">Students Enrolled: <strong>{{ classroom.students.count }}</strong></p>
+                    <p>   Classroom Code: <strong>{{ classroom.code }}</strong></p>
+                    <div class="action-buttons">
+                        <button class="btn btn-info mb-2" onclick="window.location.href='{% url 'view_classroom' classroom.id %}'">
+                            View Details
+                        </button>
+                        <a href="{% url 'unenroll_from_classroom' classroom.id %}" class="unenroll-link d-block text-danger" onclick="return confirm('Are you sure you want to unenroll?');">
+                            Unenroll
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>You have not joined any classrooms yet.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Join Classroom Popup -->
+<div id="joinClassroomPopup" class="popup">
+    <div class="popup-content">
+        <span class="close" id="closeJoinPopup">&times;</span>
+        <h3>Join a Classroom</h3>
+        <form method="post" action="{% url 'join_classroom' %}">
+            {% csrf_token %}
+            {{ join_form.as_p }}
+            <button type="submit">Join</button>
+        </form>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Toggle Join Classroom Popup
+    $('#joinClassroomBtn').click(function () {
+        $('#joinClassroomPopup').show();
+    });
+
+    $('#closeJoinPopup').click(function () {
+        $('#joinClassroomPopup').hide();
+    });
+
+    $(window).click(function (event) {
+        if (event.target.id === 'joinClassroomPopup') {
+            $('#joinClassroomPopup').hide();
+        }
+    });
+</script>
+
+<!-- CSS -->
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+    }
+
+    /* Main Content */
+    .content {
+        margin-left: 250px;
+    }
+
+    /* Header */
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .dashboard-title {
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        width: 100%;
+        margin-left: 114px;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+    }
+
+    /* Classroom List */
+    .classroom-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+    }
+
+    .class1 {
+        display: flex;
+        flex-direction: column;
+        width: 268px;
+        height: auto;
+        margin: 15px;
+        border: 1px solid rgba(128, 128, 128, 0.3);
+        border-radius: 3%;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .up {
+        position: relative;
+    }
+
+    .overlay {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        padding: 10px;
+        color: white;
+        text-align: center;
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .class_id {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: brown;
+        color: white;
+        font-size: 1.5rem;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .class_details {
+        padding: 15px;
+        text-align: left;
+    }
+
+    .class_details h3 {
+        margin-top: 0;
+        font-size: 18px;
+    }
+
+    .popup {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .popup-content {
+        background-color: white;
+        margin: 10% auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        width: 300px;
+        text-align: center;
+    }
+</style>
+
+{% endblock %}

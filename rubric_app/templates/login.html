@@ -1,0 +1,152 @@
+
+{% load static %}  <!-- Add this line to load static files -->
+{% block title %}Login{% endblock %}
+
+{% block content %}
+    <!-- Background with blur -->
+    <div class="background"></div>
+
+    <!-- Dark overlay -->
+    <div class="overlay"></div>
+
+    <!-- Login container -->
+    <div class="login-container">
+        <div class="logo">
+            <img src="{% static 'img/logo.png' %}" alt="Xavier Institute of Engineering">
+        </div>
+        <div class="title">Xavier Institute of Engineering</div>
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+        <p>Not a student? <a href="{% url 'teacher_login' %}">Login as a teacher</a></p>
+        <p>Don't have an account? <a href="{% url 'student_register' %}">Register as a student</a></p>
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Background container */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("{% static 'bg.png' %}");
+            background-size: cover;
+            background-position: center;
+            filter: blur(3px);
+            z-index: 1;
+        }
+
+        /* Overlay for contrast */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 2;
+        }
+        .content {
+            margin-left: 0px; /* Make room for the sidebar */
+            padding: 0px;
+        }
+
+        /* Container for the login form */
+        .login-container {
+            background-color: rgba(255, 255, 255, 0.85);
+            border-radius: 10px;
+            padding: 40px;
+            width: 485px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+            z-index: 3;
+            margin: 0 auto;
+        }
+
+        /* Center the login container vertically */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Logo Styling */
+        .logo img {
+            width: 90px;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #3e2b81;
+        }
+
+        /* Form Input Styles */
+        input[type="text"], input[type="password"], select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        /* Login Button */
+        .login-btn {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .login-btn:hover {
+            background-color: #45a049;
+        }
+
+        /* Additional Links */
+        p {
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        a {
+            color: #3e2b81;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+{% endblock %}

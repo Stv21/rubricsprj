@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% block title %}View Classroom{% endblock %}
+{% block content %}
+
+<!-- Classroom Title -->
+<h2 class="classroom-title">Classroom: {{ classroom.name }}</h2>
+<p>Classroom Code: <strong>{{ classroom.code }}</strong></p>
+
+<!-- Action Buttons -->
+<div class="action-buttons">
+    {% if user.is_student %}
+        <a href="{% url 'upload_rubric' classroom.id %}" class="upload-button">Upload Rubric</a>
+    {% endif %}
+</div>
+
+<!-- Tab Navigation -->
+<div class="tab-container">
+    <button class="tab-button active" data-tab="rubrics">Uploaded Rubrics</button>
+    <button class="tab-button" data-tab="students">Enrolled Students</button>
+</div>
+
+<!-- Tab Content Wrapper -->
+<div class="tab-content-wrapper">
+    <!-- Uploaded Rubrics -->
+    <div id="rubrics" class="tab-content active">
+        <h3>Uploaded Rubrics</h3>
+        <div class="rubric-container">
+            {% for rubric in rubrics %}
+                <div class="rubric-item">
+                    <strong>Uploaded by: {{ rubric.student.user.username }}</strong>
+                    {% if rubric.rubric_file %}
+                        <a href="{{ rubric.rubric_file.url }}" class="rubric-link">Download Rubric</a>
+                    {% else %}
+                        <span class="no-rubric">No rubric uploaded</span>
+                    {% endif %}
+                    <ul class="rubric-details">
+                        <li>Knowledge: {{ rubric.knowledge }}</li>
+                        <li>Performance: {{ rubric.performance }}</li>
+                        <li>Content & Neatness: {{ rubric.content_neatness }}</li>
+                        <li>Punctuality & Submission: {{ rubric.punctuality_submission }}</li>
+                        <li>Total Marks: {{ rubric.total_marks }}</li>
+                        <li>Uploaded At: {{ rubric.uploaded_at }}</li>
+                    </ul>
+                </div>
+            {% empty %}
+                <p>No rubrics uploaded yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Enrolled Students -->
+    <div id="students" class="tab-content">
+        <h3>Total Students Enrolled: {{ students|length }}</h3>
+        <ul class="student-list">
+            {% for student in students %}
+                <li>{{ student.user.username }}</li>
+            {% empty %}
+                <p>No students enrolled yet.</p>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<!-- Back to Dashboard Button -->
+<div class="back-container">
+    <a href="{% if user.is_teacher %}{% url 'teacher_dashboard' %}{% else %}{% url 'student_dashboard' %}{% endif %}" class="back-link">
+        Back to Dashboard
+    </a>
+</div>
+
+<!-- CSS -->
+<style>
+    .content{
+        margin-left: 250px;
+    }
+    .classroom-title {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 20px;
+    }
+
+    .upload-button {
+        padding: 10px 15px;
+        background-color: #4caf50;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        margin-right: 10px;
+    }
+
+    .upload-button:hover {
+        background-color: #45a049;
+    }
+
+    .tab-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .tab-button {
+        flex: 1;
+        padding: 10px 20px;
+        border: none;
+        background-color: #f1f1f1;
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .tab-button.active {
+        background-color: #2196F3;
+        color: white;
+    }
+
+    .tab-content-wrapper {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .tab-content {
+        width: 90%;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .rubric-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+    }
+
+    .rubric-item {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        width: 200px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .rubric-link {
+        color: #4caf50;
+        text-decoration: none;
+    }
+
+    .rubric-link:hover {
+        text-decoration: underline;
+    }
+
+    .student-list {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .student-list li {
+        padding: 10px;
+        margin: 5px 0;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+    }
+
+    .back-container {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .back-link {
+        padding: 10px 15px;
+        background-color: #2196F3;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+    }
+
+    .back-link:hover {
+        background-color: #1976D2;
+    }
+</style>
+
+<!-- JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const tabs = document.querySelectorAll('.tab-button');
+        const contents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                contents.forEach(c => c.classList.remove('active'));
+
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+    });
+</script>
+
+{% endblock %}

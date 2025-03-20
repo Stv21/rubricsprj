@@ -1,7 +1,7 @@
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
 from .models import Subject, Rubric, Marks, Student, Teacher, Classroom
 from .forms import CustomUserCreationForm, RubricUploadForm, ClassroomForm, JoinClassroomForm
@@ -12,14 +12,16 @@ from django.contrib import messages
 from django.conf import settings
 from django.urls import reverse
 from django.http import HttpResponse
-
+import xlwt
 import uuid
 import os
 from gradio_client import Client, handle_file
+import csv
+from .forms import StudentProfileForm
+
 
 from django.conf import settings
 
-# Custom login view, redirecting based on user role
 def custom_login(request, *args, **kwargs):
     if request.user.is_authenticated:
         return redirect('dashboard_redirect')
@@ -60,9 +62,9 @@ def student_dashboard(request):
             try:
                 classroom = Classroom.objects.get(code=code)
                 student.classrooms.add(classroom)
-                messages.success(request, "Successfully joined the classroom!")
+                messages.success(request, "Joined classroom successfully!")
             except Classroom.DoesNotExist:
-                join_form.add_error('code', 'Invalid classroom code.')
+                join_form.add_error('code', 'Invalid code')
 
     return render(
         request,
@@ -73,20 +75,35 @@ def student_dashboard(request):
             'home_url': home_url,
         },
     )
+@login_required
+def student_profile(request):
+    student = get_object_or_404(Student, user=request.user)
+    
+    if request.method == 'POST':
+        form = StudentProfileForm(request.POST, instance=student)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('student_profile')
+    else:
+        form = StudentProfileForm(instance=student)
 
-
+    return render(request, 'student_profile.html', {
+        'form': form,
+        'student': student,
+        'classrooms': student.classrooms.all()
+    })
 @login_required
 def delete_rubric(request, rubric_id):
     rubric = get_object_or_404(Rubric, id=rubric_id, student=request.user.student)
-    
     if request.method == 'POST':
-        rubric.delete()  # Delete the rubric
+        rubric.delete()
         return JsonResponse({'success': True})
-    
     return JsonResponse({'success': False})
 
 # Teacher dashboard view with classroom creation functionality
 @login_required
+
 def teacher_dashboard(request):
     teacher = request.user.teacher
     classrooms = Classroom.objects.filter(teacher=teacher)
@@ -99,7 +116,7 @@ def teacher_dashboard(request):
             classroom.teacher = teacher
             classroom.code = uuid.uuid4().hex[:10]  
             classroom.save()
-            messages.success(request, f"Classroom created successfully! Code: {classroom.code}")
+            messages.success(request, f"Classroom created! Code: {classroom.code}")
             return redirect('teacher_dashboard')
         else:
             messages.error(request, "Failed to create classroom. Please check the details.")
@@ -109,6 +126,7 @@ def teacher_dashboard(request):
         'create_form': create_form
     })
 
+    
 # View classroom details for teacher, displaying enrolled students and their rubrics
 @login_required
 def get_enrolled_students(request, classroom_id):
@@ -129,11 +147,7 @@ def get_enrolled_students(request, classroom_id):
 @login_required
 def view_classroom(request, classroom_id):
     classroom = get_object_or_404(Classroom, id=classroom_id)
-
-    # Initialize the context
-    context = {
-        "classroom": classroom,
-    }
+    context = {'classroom': classroom}
 
     if request.user.is_teacher:
         # Ensure the teacher owns the classroom
@@ -176,20 +190,46 @@ def view_classroom(request, classroom_id):
 
 
 @login_required
-def get_enrolled_students(request, classroom_id):
-    # Fetch the classroom, accessible to both students and teachers
+def export_grades(request, classroom_id):
     classroom = get_object_or_404(Classroom, id=classroom_id)
+    
+    if not request.user.is_teacher or classroom.teacher.user != request.user:
+        return HttpResponse('Unauthorized', status=401)
 
-    # Ensure the user has access to the classroom
-    if request.user.is_teacher and classroom.teacher.user != request.user:
-        return JsonResponse({'error': 'You do not have access to this classroom'}, status=403)
-    if request.user.is_student and not request.user.student.classrooms.filter(id=classroom_id).exists():
-        return JsonResponse({'error': 'You are not enrolled in this classroom'}, status=403)
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = f'attachment; filename="{classroom.name}_grades.xls"'
 
-    # Fetch the list of enrolled students
-    students = classroom.students.all().values_list('user__username', flat=True)
-    return JsonResponse({'students': list(students)})
+    wb = xlwt.Workbook(encoding='utf-8')
+    ws = wb.add_sheet('Grades')
 
+    # Sheet header, first row
+    row_num = 0
+    font_style = xlwt.XFStyle()
+    font_style.font.bold = True
+
+    columns = ['Student', 'Knowledge', 'Performance', 'Content & Neatness', 'Punctuality', 'Total Marks']
+    
+    for col_num, column_title in enumerate(columns):
+        ws.write(row_num, col_num, column_title, font_style)
+
+    # Sheet body, remaining rows
+    font_style = xlwt.XFStyle()
+    
+    rubrics = Rubric.objects.filter(classroom=classroom).select_related('student__user')
+    
+    for rubric in rubrics:
+        row_num += 1
+        ws.write(row_num, 0, rubric.student.user.username, font_style)
+        ws.write(row_num, 1, rubric.knowledge or 0, font_style)
+        ws.write(row_num, 2, rubric.performance or 0, font_style)
+        ws.write(row_num, 3, rubric.content_neatness or 0, font_style)
+        ws.write(row_num, 4, rubric.punctuality_submission or 0, font_style)
+        ws.write(row_num, 5, rubric.total_marks or 0, font_style)
+
+    wb.save(response)
+    return response
+
+# ---------------------- Rubric Processing ----------------------
 def delete_classroom(request, classroom_id):
     classroom = get_object_or_404(Classroom, id=classroom_id, teacher=request.user.teacher)
     
@@ -228,7 +268,7 @@ def join_classroom(request):
             messages.success(request, "Successfully joined the classroom!")
             return redirect('student_dashboard')
     return redirect('student_dashboard')
-# Gradio API 
+@login_required
 def upload_rubric(request, classroom_id):
     classroom = get_object_or_404(Classroom, id=classroom_id, students=request.user.student)
     
@@ -253,10 +293,11 @@ def upload_rubric(request, classroom_id):
                     img=handle_file(file_path),  # Assuming handle_file function processes the image
                     api_name="/predict",
                 )
+                #print(result)
 
                 # Unpack the result (adjust according to your API response)
                 image_path, knowledge, performance, content_neatness, punctuality_submission, total = result
-
+                total=int(knowledge)+int(performance)+int(content_neatness)+int(punctuality_submission)
                 # Delay saving the rubric to assign additional fields
                 rubric = form.save(commit=False)
                 rubric.classroom = classroom  # Assign the classroom foreign key
@@ -266,7 +307,7 @@ def upload_rubric(request, classroom_id):
                 rubric.content_neatness = content_neatness
                 rubric.punctuality_submission = punctuality_submission
                 rubric.total_marks = total
-                rubric.save()  # Save rubric to the database
+                rubric.save()
 
                 # Optionally create associated marks
                 Marks.objects.create(rubric=rubric)
@@ -276,8 +317,8 @@ def upload_rubric(request, classroom_id):
                     'success': True,
                     'imageUrl': rubric.rubric_file.url,
                     'knowledge': knowledge,
-                    'performance': performance,
-                    'content_neatness': content_neatness,
+                    'performance': content_neatness,
+                    'content_neatness': performance,
                     'punctuality_submission': punctuality_submission,
                     'total_marks': total,
                 }
@@ -293,7 +334,7 @@ def upload_rubric(request, classroom_id):
 
     return render(request, 'upload_rubric.html', {'form': form, 'classroom': classroom})
 
-
+# ---------------------- Registration Views ----------------------
 
 # Student registration
 def student_register(request):
@@ -336,7 +377,5 @@ def teacher_register(request):
         form = CustomUserCreationForm()
     return render(request, 'teacher_register.html', {'form': form})
 
-
-
-
+# --    -------------------- Admin Views ----------------------
 

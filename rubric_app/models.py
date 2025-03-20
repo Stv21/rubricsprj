@@ -12,9 +12,9 @@ class CustomUser(AbstractUser):
         return self.username
 
 class Subject(models.Model):
-    name = models.CharField(max_length=100, blank=True, null=True)  # Allow null
-    year = models.IntegerField(blank=True, null=True)  # Allow null
-    branch = models.CharField(max_length=100, blank=True, null=True)  # Allow null
+    name = models.CharField(max_length=100, blank=True, null=True)
+    year = models.IntegerField(blank=True, null=True)
+    branch = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -22,43 +22,48 @@ class Subject(models.Model):
 class Teacher(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     name = models.CharField(max_length=100, default='Default Name')
-    subjects = models.ManyToManyField(Subject, blank=True)  # Allow empty
+    subjects = models.ManyToManyField(Subject, blank=True)
 
     def __str__(self):
         return self.name
 
 class Classroom(models.Model):
     name = models.CharField(max_length=100)
-    subject = models.CharField(max_length=100)  # Free-text input for subject
+    subject = models.CharField(max_length=100)
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
     year = models.PositiveIntegerField(blank=True, null=True)
     branch = models.CharField(max_length=50, blank=True, null=True)
     code = models.CharField(max_length=10, unique=True, default=uuid.uuid4().hex[:10])
+
+    # ✅ Many-to-Many relationship (Reverse Access Preserved)
+    students = models.ManyToManyField("Student", blank=True, related_name="classrooms")  
 
     def __str__(self):
         return f"{self.name} ({self.code})"
 
 class Student(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    classrooms = models.ManyToManyField(Classroom, blank=True, related_name="students")
+    roll_number = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,  # ✅ Allow database NULL values to prevent conflicts
+        help_text="Unique identifier for the student across all classrooms"
+    )
+    full_name = models.CharField(max_length=200, blank=True)
 
     def __str__(self):
-        return self.user.username
+        return f"{self.roll_number or 'No Roll'} - {self.full_name or self.user.username}"
 
+    # 🚫 Removed duplicate classrooms field (Handled by Classroom.students)
+
+    def __str__(self):
+        return f"{self.roll_number} - {self.full_name or self.user.username}"
+
+
+# ✅ Rubric Model
 class Rubric(models.Model):
-    classroom = models.ForeignKey(
-        Classroom,
-        on_delete=models.CASCADE,
-        related_name="rubrics",
-        blank=True,
-        null=True
-    )
-    student = models.ForeignKey(
-        Student,
-        on_delete=models.CASCADE,
-        related_name="rubrics",
-        null=True
-    )
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name="rubrics", blank=True, null=True)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="rubrics", null=True)
     rubric_file = models.ImageField(upload_to="rubrics/", blank=True, null=True)
     knowledge = models.IntegerField(default=0, blank=True, null=True)
     performance = models.IntegerField(default=0, blank=True, null=True)
@@ -68,8 +73,9 @@ class Rubric(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
-        return f"Rubric for {self.student.user.username} in {self.classroom.name if self.classroom else 'No Classroom'}"
+        return f"Rubric for {self.student.full_name or self.student.user.username} in {self.classroom.name if self.classroom else 'No Classroom'}"
 
+# ✅ Marks Model
 class Marks(models.Model):
     rubric = models.OneToOneField(Rubric, on_delete=models.CASCADE)
     knowledge = models.IntegerField(default=0)
@@ -78,4 +84,4 @@ class Marks(models.Model):
     punctuality_submission = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"Marks for {self.rubric.student.user.username} in {self.rubric.classroom.name if self.rubric.classroom else 'No Classroom'}"
+        return f"Marks for {self.rubric.student.full_name or self.rubric.student.user.username} in {self.rubric.classroom.name if self.rubric.classroom else 'No Classroom'}"

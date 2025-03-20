@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Student Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Student Profile</h3>
+        </div>
+        
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <!-- Fixed Row Structure -->
+                <div class="row mb-4">
+                    <!-- Roll Number Field -->
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            <label class="form-label fw-bold">{{ form.roll_number.label }}</label>
+                            {{ form.roll_number }}
+                            <small class="form-text text-muted">
+                                Your institution-issued identifier
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Username Field -->
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            <label class="form-label fw-bold">Username</label>
+                            <input type="text" class="form-control bg-light" 
+                                   value="{{ request.user.username }}" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Full Name Field -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label class="form-label fw-bold">{{ form.full_name.label }}</label>
+                            {{ form.full_name }}
+                            <small class="form-text text-muted">
+                                Your official name for reports and certificates
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enrolled Classrooms Section -->
+                <div class="enrolled-classrooms mt-5">
+                    <h5 class="mb-4 border-bottom pb-2">Enrolled Classrooms</h5>
+                    {% for classroom in classrooms %}
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-light">Class Code:</span>
+                                </div>
+                                <input type="text" class="form-control bg-white" 
+                                       value="{{ classroom.code }}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mt-2 mt-md-0">
+                            <input type="text" class="form-control bg-white" 
+                                   value="{{ classroom.name }}" readonly>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Not enrolled in any classrooms yet
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-5 pt-4 border-top">
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i> Save Changes
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .main-content {
+        margin-left: 250px;
+        padding: 2rem;
+    }
+    
+    .form-control {
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+    }
+    
+    .input-group-text {
+        border-radius: 0.5rem 0 0 0.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .main-content {
+            margin-left: 0;
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}

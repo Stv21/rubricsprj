@@ -1,217 +1,302 @@
 {% extends 'base.html' %}
-{% block title %}View Classroom{% endblock %}
+{% block title %}{{ classroom.name }}{% endblock %}
 {% block content %}
 
-<!-- Classroom Title -->
-<h2 class="classroom-title">Classroom: {{ classroom.name }}</h2>
-<p>Classroom Code: <strong>{{ classroom.code }}</strong></p>
+<!-- Add Bootstrap CSS link in your base.html if not already present -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
-<!-- Action Buttons -->
-<div class="action-buttons">
-    {% if user.is_student %}
-        <a href="{% url 'upload_rubric' classroom.id %}" class="upload-button">Upload Rubric</a>
-    {% endif %}
-</div>
-
-<!-- Tab Navigation -->
-<div class="tab-container">
-    <button class="tab-button active" data-tab="rubrics">Uploaded Rubrics</button>
-    <button class="tab-button" data-tab="students">Enrolled Students</button>
-</div>
-
-<!-- Tab Content Wrapper -->
-<div class="tab-content-wrapper">
-    <!-- Uploaded Rubrics -->
-    <div id="rubrics" class="tab-content active">
-        <h3>Uploaded Rubrics</h3>
-        <div class="rubric-container">
-            {% for rubric in rubrics %}
-                <div class="rubric-item">
-                    <strong>Uploaded by: {{ rubric.student.user.username }}</strong>
-                    {% if rubric.rubric_file %}
-                        <a href="{{ rubric.rubric_file.url }}" class="rubric-link">Download Rubric</a>
-                    {% else %}
-                        <span class="no-rubric">No rubric uploaded</span>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar (Now only in base.html) -->
+        
+        <!-- Main Content -->
+        <div class="main-content col" style="margin-left: 0px;">
+            <div class="container-fluid py-4">
+                <!-- Header Section -->
+                <div class="header-section mb-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="classroom-title mb-1">{{ classroom.name }}</h2>
+                            <p class="text-muted mb-0">Class Code: <strong>{{ classroom.code }}</strong></p>
+                        </div>
+                        <div class="action-buttons">
+                            {% if user.is_teacher %}
+                            <a href="{% url 'export_grades' classroom.id %}" class="btn btn-excel">
+                                <i class="fas fa-file-excel"></i> Export
+                            </a>
+                            {% endif %}
+                            <a href="{% if user.is_teacher %}{% url 'teacher_dashboard' %}{% else %}{% url 'student_dashboard' %}{% endif %}" 
+                               class="btn btn-back">
+                                <i class="fas fa-arrow-left mr-2"></i> Back
+                            </a>
+                        </div>
+                    </div>
+                    
+                    {% if user.is_student %}
+                    <div class="mt-3">
+                        <a href="{% url 'upload_rubric' classroom.id %}" class="btn btn-upload">
+                            <i class="fas fa-upload mr-2"></i> Upload Rubric
+                        </a>
+                    </div>
                     {% endif %}
-                    <ul class="rubric-details">
-                        <li>Knowledge: {{ rubric.knowledge }}</li>
-                        <li>Performance: {{ rubric.performance }}</li>
-                        <li>Content & Neatness: {{ rubric.content_neatness }}</li>
-                        <li>Punctuality & Submission: {{ rubric.punctuality_submission }}</li>
-                        <li>Total Marks: {{ rubric.total_marks }}</li>
-                        <li>Uploaded At: {{ rubric.uploaded_at }}</li>
-                    </ul>
                 </div>
-            {% empty %}
-                <p>No rubrics uploaded yet.</p>
-            {% endfor %}
+
+                <!-- Fixed Tab Navigation -->
+                <ul class="nav nav-tabs mb-4" id="classroomTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="rubrics-tab" data-toggle="tab" href="#rubrics" role="tab"
+                           aria-controls="rubrics" aria-selected="true">
+                           <i class="fas fa-clipboard-list mr-2" style="color: blue;"></i>Rubrics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="students-tab" data-toggle="tab" href="#students" role="tab"
+                           aria-controls="students" aria-selected="false">
+                           <i class="fas fa-users mr-2" style="color: #3498db;"></i>Students
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    <!-- Rubrics Tab -->
+                    <div class="tab-pane fade show active" id="rubrics" role="tabpanel" aria-labelledby="rubrics-tab">
+                        <div class="rubric-container">
+                            {% for rubric in rubrics %}
+                            <div class="rubric-card shadow-sm mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        {{ rubric.student.user.username }}
+                                        <small class="text-muted float-right">
+                                            {{ rubric.uploaded_at|date:"M d, Y" }}
+                                        </small>
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    {% if rubric.rubric_file %}
+                                    <a href="{{ rubric.rubric_file.url }}" class="btn btn-sm btn-outline-primary mb-3">
+                                        <i class="fas fa-download mr-2"></i> Download Rubric
+                                    </a>
+                                    {% endif %}
+                                    <div class="rubric-scores row">
+                                        <div class="col-6 col-md-3">
+                                            <small class="text-muted">Knowledge</small>
+                                            <div class="score">{{ rubric.knowledge|default:"-" }}/4</div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <small class="text-muted">Performance</small>
+                                            <div class="score">{{ rubric.performance|default:"-" }}/3</div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <small class="text-muted">Content</small>
+                                            <div class="score">{{ rubric.content_neatness|default:"-" }}/5</div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <small class="text-muted">Punctuality</small>
+                                            <div class="score">{{ rubric.punctuality_submission|default:"-" }}/3</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="total-score">Total: {{ rubric.total_marks|default:"0" }}/15</span>
+                                        {% if user.is_teacher %}
+                                        <button class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="alert alert-info">
+                                No rubrics submitted yet.
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Students Tab -->
+                    <div class="tab-pane fade" id="students" role="tabpanel" aria-labelledby="students-tab">
+                        <div class="student-list card shadow-sm">
+                            <div class="card-header">
+                                <h5 class="mb-0">Enrolled Students ({{ students|length }})</h5>
+                            </div>
+                            <div class="card-body">
+                                {% for student in students %}
+                                <div class="student-item d-flex justify-content-between align-items-center mb-2 p-2">
+                                    <span>{{ student.user.username }}</span>
+                                    {% if user.is_teacher %}
+                                    <button class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-user-minus"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                                {% empty %}
+                                <div class="alert alert-warning mb-0">
+                                    No students enrolled yet.
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
-    <!-- Enrolled Students -->
-    <div id="students" class="tab-content">
-        <h3>Total Students Enrolled: {{ students|length }}</h3>
-        <ul class="student-list">
-            {% for student in students %}
-                <li>{{ student.user.username }}</li>
-            {% empty %}
-                <p>No students enrolled yet.</p>
-            {% endfor %}
-        </ul>
-    </div>
 </div>
 
-<!-- Back to Dashboard Button -->
-<div class="back-container">
-    <a href="{% if user.is_teacher %}{% url 'teacher_dashboard' %}{% else %}{% url 'student_dashboard' %}{% endif %}" class="back-link">
-        Back to Dashboard
-    </a>
-</div>
-
-<!-- CSS -->
+<!-- ✅ Updated CSS -->
 <style>
-    .content{
-        margin-left: 250px;
-    }
     .classroom-title {
-        font-size: 24px;
-        font-weight: bold;
-        margin-bottom: 20px;
-        text-align: center;
+        font-size: 1.8rem;
+        color: #2c3e50;
     }
 
-    .action-buttons {
-        display: flex;
-        justify-content: flex-end;
-        margin-bottom: 20px;
+    .btn-excel {
+        background-color: #1d6f42;
+        color: white;
+        border-radius: 4px;
+        padding: 8px 15px;
     }
 
-    .upload-button {
-        padding: 10px 15px;
+    .btn-excel:hover {
+        background-color: #165732;
+        color: white;
+    }
+
+    .btn-back {
+        background-color: #6c757d;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 4px;
+    }
+
+    .btn-back:hover {
+        background-color: #5a6268;
+    }
+
+    .btn-upload {
         background-color: #4caf50;
         color: white;
-        text-decoration: none;
+        padding: 8px 15px;
         border-radius: 4px;
-        margin-right: 10px;
     }
 
-    .upload-button:hover {
+    .btn-upload:hover {
         background-color: #45a049;
     }
 
-    .tab-container {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 20px;
+    .rubric-card {
+        border-radius: 8px;
+        border: 1px solid #eee;
     }
 
-    .tab-button {
-        flex: 1;
-        padding: 10px 20px;
-        border: none;
+    .score {
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: #2c3e50;
+    }
+
+    .total-score {
+        font-weight: 500;
+        color: #3498db;
+    }
+
+    @media (max-width: 768px) {
+        .main-content {
+            margin-left: 0;
+            padding: 15px;
+        }
+        
+        .header-section {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .action-buttons {
+            margin-top: 15px;
+            width: 100%;
+            justify-content: space-between;
+        }
+    }
+
+    /* Tab Styling Fixes */
+    .nav-tabs {
+        border-bottom: 2px solid #dee2e6;
+    }
+    .nav-link {
+        color: #495057;
+        padding: 0.75rem 1.25rem;
+        transition: all 0.3s ease;
+    }
+    .nav-link.active {
+        background-color: #f8f9fa;
+        border-color: #dee2e6 #dee2e6 #f8f9fa;
+        color: #3498db;
+        font-weight: 500;
+    }
+    .nav-link:hover:not(.active) {
         background-color: #f1f1f1;
-        cursor: pointer;
-        text-align: center;
     }
-
-    .tab-button.active {
-        background-color: #2196F3;
-        color: white;
-    }
-
-    .tab-content-wrapper {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-    }
-
     .tab-content {
-        width: 90%;
-        padding: 20px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        background-color: #f9f9f9;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        overflow-y: auto;
-        display: none;
-    }
-
-    .tab-content.active {
-        display: block;
-    }
-
-    .rubric-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-        justify-content: center;
-    }
-
-    .rubric-item {
         background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 15px;
-        width: 200px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        text-align: center;
+        border: 1px solid transparent;
+        border-radius: 0 0.25rem 0.25rem 0.25rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
     }
-
-    .rubric-link {
-        color: #4caf50;
-        text-decoration: none;
+    .tab-pane {
+        padding: 1.5rem;
     }
-
-    .rubric-link:hover {
-        text-decoration: underline;
+    .tab-content > .tab-pane {
+        display: block;
+        height: 0;
+        overflow: hidden;
     }
-
-    .student-list {
-        list-style-type: none;
-        padding: 0;
+    .tab-content > .active {
+        height: auto;
+        overflow: visible;
     }
-
-    .student-list li {
-        padding: 10px;
-        margin: 5px 0;
-        background-color: #f9f9f9;
-        border-radius: 4px;
-    }
-
-    .back-container {
-        margin-top: 20px;
-        text-align: center;
-    }
-
-    .back-link {
-        padding: 10px 15px;
-        background-color: #2196F3;
-        color: white;
-        text-decoration: none;
-        border-radius: 4px;
-    }
-
-    .back-link:hover {
-        background-color: #1976D2;
+    .nav-link.active:after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: #3498db;
     }
 </style>
 
-<!-- JavaScript -->
+<!-- Add required Bootstrap JS and dependencies in base.html -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Updated JavaScript -->
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const tabs = document.querySelectorAll('.tab-button');
-        const contents = document.querySelectorAll('.tab-content');
-
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
-                contents.forEach(c => c.classList.remove('active'));
-
-                tab.classList.add('active');
-                document.getElementById(tab.dataset.tab).classList.add('active');
-            });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Bootstrap tabs
+        $('#classroomTabs a').on('click', function (e) {
+            e.preventDefault();
+            $(this).tab('show');
         });
+
+        // Tab persistence
+        const activeTab = localStorage.getItem('activeClassroomTab');
+        if (activeTab) {
+            $('#classroomTabs a[href="' + activeTab + '"]').tab('show');
+        }
+
+        // Store active tab
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            localStorage.setItem('activeClassroomTab', $(e.target).attr('href'));
+        });
+
+        // Activate first tab if none stored
+        if (!activeTab) {
+            $('#classroomTabs a:first').tab('show');
+        }
     });
 </script>
 

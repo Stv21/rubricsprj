@@ -1,178 +1,315 @@
-/* Global Styles */
+/* ===========================
+   ✅ Global Styles
+==============================*/
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f9;
-     /* Ensure content is not hidden under the fixed navbar */
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #f8f9fa;
+    padding-top: 60px; /* Prevent navbar from hiding content */
 }
 
-/* Navbar Styling 
+/* ===========================
+   ✅ Navbar Styling (Updated)
+==============================*/
 .navbar {
-    background-color: #333;
-    padding: 10px 20px;
-    color: white;
-    position: fixed;  
-    width: 100%;
-    top: 0;
-    left: 0;
-    z-index: 1000; 
-    box-sizing: border-box;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background-color: #007bff;
+    padding: 12px 20px;
+    height: 60px;
 }
 
-.navbar a {
-    color: white;
-    text-decoration: none;
-    margin: 0 15px;
-    padding: 10px;
-}
-*/
-/* Sidebar Styling */
-.sidebar {
-    width: 220px;
-    background-color: #333;
-    color: white;
-    position: fixed; /* Keeps sidebar fixed on the left */
-    top: 80px; /* Push the sidebar down to make space for the navbar */
-    left: 0;
-    height: 100%; /* Full height of the content */
-    min-height: 100vh; /* Minimum height of the viewport */
-    background-color: #343a40;
-    padding-top: 20px;
-    box-sizing: border-box;
-    transition: left 0.3s ease;
-    display: flex;
-    flex-direction: column;
-}
-
-.sidebar ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    flex-grow: 1; /* Allow sidebar content to grow */
-}
-
-.sidebar ul li {
-    padding: 10px 20px;
-    background-color: #992f2f;
-    border-bottom: 1px solid #444;
-}
-
-.sidebar ul li a {
-    color: white;
-    text-decoration: none;
-    display: block;
+.navbar-brand {
     font-weight: bold;
+    font-size: 1.25rem;
+    color: white;
 }
 
-.sidebar ul li a:hover {
-    background-color: #555;
+.nav-link {
+    color: white;
+    transition: color 0.3s ease;
 }
 
-/* Main Content Styles */
+.nav-link:hover {
+    color: #f8d7da;
+}
+
+/* ===========================
+   ✅ MODERN SIDEBAR SYSTEM (NEW)
+==============================*/
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 100;
+    background: #2c3e50;
+    transition: 0.3s;
+    overflow-y: auto;
+    padding-top: 60px; /* Prevent overlap with navbar */
+}
+
+.sidebar-sticky {
+    position: relative;
+    height: 100%;
+}
+
+/* Sidebar Navigation */
+.nav-item {
+    padding: 8px 20px;
+}
+
+.nav-link {
+    color: #b1b1b1 !important;
+    border-radius: 4px;
+    margin: 2px 0;
+    transition: all 0.3s;
+}
+
+.nav-link:hover {
+    background: #34495e;
+    color: white !important;
+}
+
+.nav-link.active {
+    background: #3498db;
+}
+
+/* ✅ Fix Main Content Alignment */
 .main-content {
-    margin-left: 200px; /* Sidebar width */
-    padding: 35px;
-    transition: margin-left 0.3s ease;
-}
-.content{
-    margin-left: 160px; /* Sidebar width */
-   
-    transition: margin-left 0.3s ease;
+    margin-left: 250px; /* Match sidebar width */
+    padding: 30px;
+    transition: 0.3s;
+    min-height: calc(100vh - 60px);
 }
 
-.sidebar.open + .main-content {
+/* For pages without sidebar */
+.no-sidebar .main-content {
     margin-left: 0;
+    padding: 30px 15px;
 }
 
-/* Header and Typography */
-h1, h2 {
-    color: #333;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-p {
-    color: #666;
-    line-height: 1.6;
-}
-
-/* Buttons */
-button {
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-}
-
-/* Move Logout to the bottom */
-.sidebar .logout {
-    margin-top: auto; /* Pushes logout to the bottom */
-    padding: 10px 20px;
-    background-color: #992f2f;
-    text-align: center;
-}
-
-.sidebar .logout a {
-    color: white;
-    text-decoration: none;
-}
-
-.mb-20 {
-    margin-bottom: 20px;
-}
-
-/* List Styles */
-ul {
-    list-style: none;
-    padding: 0;
-}
-
-ul li {
-    padding: 10px;
-    margin: 5px 0;
-    background-color: #f9f9f9;
-    border-radius: 4px;
-}
-
-/* Footer Styles */
-.footer {
-    background-color: #f1f1f1;
-    padding: 20px 0;
-    text-align: center;
-    width: 100%;
-    bottom: 0;
+/* Mobile optimization */
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0 !important;
+        padding: 20px;
+    }
     
+    .sidebar {
+        left: -250px;
+    }
+}
+
+/* ===========================
+   ✅ Card Styling (Updated)
+==============================*/
+.card {
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border-radius: 12px;
+    background-color: white;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.8rem 1.5rem rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background-color: white;
+    border-bottom: 1px solid rgba(0,0,0,0.125);
+}
+
+/* ===========================
+   ✅ Button Styling
+==============================*/
+.btn {
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    padding: 10px 15px;
+}
+
+.btn-outline-success {
+    border-color: #28a745;
+    color: #28a745;
+}
+
+.btn-outline-success:hover {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-outline-secondary {
+    border-color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: white;
+}
+
+/* ✅ Sidebar Toggle Button */
+.navbar-toggler {
+    display: none;
 }
 
 @media (max-width: 768px) {
-    .navbar {
-        position: relative; /* Remove fixed positioning on smaller screens */
-    }
-
     .sidebar {
-        position: relative; /* Make sidebar scroll with the page */
-        height: auto; /* Remove fixed height for smaller screens */
-        width: 100%; /* Sidebar takes full width */
-        top: 0;
+        left: -250px;
     }
-
+    
+    .sidebar.active {
+        left: 0;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
     .main-content {
-        margin-left: 0; /* No left margin on smaller screens */
-        margin-top: 120px; /* Ensure content is not behind the navbar */
+        margin-left: 0;
+        padding: 20px;
+    }
+    
+    .navbar-toggler {
+        display: block !important;
+    }
+}
+
+/* ===========================
+   ✅ Alert Message Styles
+==============================*/
+.alert {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 6px;
+}
+
+.alert-container {
+    position: fixed;
+    top: 90px;
+    right: 20px;
+    z-index: 1050;
+    min-width: 300px;
+}
+
+.alert-dismissible .close {
+    padding: 10px 15px;
+}
+
+/* ===========================
+   ✅ Footer Styling (Updated)
+==============================*/
+.footer {
+    background-color: white;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    margin-top: auto;
+    padding: 20px 0;
+    text-align: center;
+    color: #6c757d;
+}
+
+/* ===========================
+   ✅ Classroom Box Styling
+==============================*/
+.classroom-card {
+    border-radius: 12px;
+    padding: 20px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.classroom-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.1);
+}
+
+/* ===========================
+   ✅ Create Classroom Modal
+==============================*/
+.modal-content {
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* ===========================
+   ✅ Custom Hover Effects
+==============================*/
+.btn-group-vertical .btn {
+    margin: 2px 0;
+    text-align: left;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+}
+
+.btn-group-vertical .btn:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.02);
+}
+
+/* ===========================
+   ✅ Excel Export Button Effect
+==============================*/
+.btn-outline-info {
+    border-color: #17a2b8;
+}
+
+/* ===========================
+   ✅ Improved Button Hover Effect
+==============================*/
+button {
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background-color: #343a40;
+    color: white;
+}
+
+/* ===========================
+   ✅ Responsive Adjustments
+==============================*/
+@media (max-width: 768px) {
+    body {
+        padding-top: 60px;
     }
 
-    /* Additional adjustment for sidebar to behave better on small screens */
-    .sidebar ul li {
-        padding: 10px;
-        text-align: center;
+    .navbar-brand {
+        font-size: 1rem;
     }
 
-    .navbar-nav {
-        display: flex;
-        justify-content: space-between;
+    .card {
+        margin-bottom: 1rem;
     }
+
+    .alert-container {
+        top: 70px;
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+    }
+}
+
+/* ===========================
+   ✅ Remove Old Sidebar Styles
+==============================*/
+.sidebar {
+    display: block;
+}
+button {
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background-color: #343a40;
+    color: white;
+}
+
+
+/* ===========================
+   ✅ Smooth Sidebar Animation
+==============================*/
+.sidebar {
+    transition: left 0.3s ease-in-out;
+}
+.btn-outline-info {
+    border-color: #17a2b8;
+    
 }

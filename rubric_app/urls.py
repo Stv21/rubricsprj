@@ -6,6 +6,7 @@ from django.conf.urls.static import static  # Import static
 from . import views
 from .views import delete_classroom, unenroll_from_classroom, upload_rubric  # Import views
 from .views import delete_rubric  # Import delete_rubric view
+from .views import student_profile
 
 urlpatterns = [
     path('', RedirectView.as_view(url='login', permanent=False), name='home'),
@@ -26,5 +27,6 @@ urlpatterns = [
     path('rubric/<int:rubric_id>/delete/', delete_rubric, name='delete_rubric'),
     path('classroom/<int:classroom_id>/delete/', delete_classroom, name='delete_classroom'),
     path('get_enrolled_students/<int:classroom_id>/', views.get_enrolled_students, name='get_enrolled_students'),
-    
+    path('classroom/<int:classroom_id>/export/', views.export_grades, name='export_grades'),
+    path('student/profile/', student_profile, name='student_profile'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser, Rubric, Classroom
 from datetime import datetime
+from .models import Student
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
@@ -39,4 +40,23 @@ class ClassroomForm(forms.ModelForm):
         }
 class JoinClassroomForm(forms.Form):
     code = forms.CharField(max_length=10, label='Classroom Code')
+
+class StudentProfileForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = ['roll_number', 'full_name']  # Add roll_number here
+        labels = {
+            'roll_number': 'Roll Number',
+            'full_name': 'Full Name'
+        }
+        widgets = {
+            'full_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter your full name'
+            }),
+            'roll_number': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter your roll number'
+            })
+        }
 

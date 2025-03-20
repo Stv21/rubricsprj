@@ -2,49 +2,131 @@
 {% block title %}Upload Rubric{% endblock %}
 {% block content %}
 
-<h2>Upload Rubric for {{ classroom.name }}</h2>
+<div class="main-content">
+    <div class="container mt-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">Upload Rubric for {{ classroom.name }}</h2>
+            </div>
 
-<!-- Button to trigger the file upload -->
-<button id="uploadButton">Upload Rubric</button>
-<input type="file" id="rubricFile" style="display: none;" accept="image/*">
-<span id="fileName" style="margin-left: 10px; display: none;"></span>
+            <div class="card-body">
+                <!-- Loading Overlay -->
+                <div id="loadingOverlay" class="loading-overlay">
+                    <div class="loading-content">
+                        <div class="loader"></div>
+                        <p class="mt-3">Processing your rubric...</p>
+                        <p class="text-muted small">This may take a few seconds</p>
+                    </div>
+                </div>
 
-<p id="successMessage" style="color: green; display: none;">Rubric uploaded successfully!</p>
-<p id="errorMessage" style="color: red; display: none;">Error in uploading rubric!</p>
+                <!-- Upload Section -->
+                <div class="upload-section mb-5">
+                    <button class="btn btn-primary mb-3" id="uploadButton">
+                        <i class="fas fa-upload me-2"></i>Choose Image
+                    </button>
+                    <input type="file" id="rubricFile" class="d-none" accept="image/*">
+                    <div id="fileName" class="text-muted mb-3"></div>
 
-<!-- Loader -->
-<div id="loader" class="loader" style="display: none;"></div>
+                    <!-- Status Messages -->
+                    <div id="successMessage" class="alert alert-success d-none"></div>
+                    <div id="errorMessage" class="alert alert-danger d-none"></div>
 
-<!-- Displaying marks -->
-<h3>Extracted Marks:</h3>
-<ul id="extractedMarksList" style="display: none;">
-    <li>Knowledge: <span id="knowledge"></span></li>
-    <li>Performance: <span id="performance"></span></li>
-    <li>Content & Neatness: <span id="content_neatness"></span></li>
-    <li>Punctuality & Submission: <span id="punctuality_submission"></span></li>
-    <li>Total Marks: <span id="total_marks"></span></li>
-</ul>
+                    <!-- Results Section -->
+                    <div class="marks-results mt-4">
+                        <h4>Extracted Marks</h4>
+                        <ul id="extractedMarksList" class="list-group d-none mt-3">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Knowledge
+                                <span class="badge bg-primary rounded-pill" id="knowledge"></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Performance
+                                <span class="badge bg-primary rounded-pill" id="performance"></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Content & Neatness
+                                <span class="badge bg-primary rounded-pill" id="content_neatness"></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Punctuality & Submission
+                                <span class="badge bg-primary rounded-pill" id="punctuality_submission"></span>
+                            </li>
+                            <li class="list-group-item list-group-item-primary d-flex justify-content-between align-items-center fw-bold">
+                                Total Marks
+                                <span class="badge bg-success rounded-pill" id="total_marks"></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
 
-<a href="{% url 'student_dashboard' %}">Back to Dashboard</a>
+                <!-- Navigation -->
+                <div class="mt-5">
+                    <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-<!-- CSS for Loader -->
 <style>
+    /* Loading Overlay */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        z-index: 9999;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .loading-content {
+        text-align: center;
+        animation: fadeIn 0.3s ease-in;
+    }
+
+    /* Loader animation */
     .loader {
-        border: 4px solid #f3f3f3;
+        width: 60px;
+        height: 60px;
+        border: 5px solid #f3f3f3;
         border-radius: 50%;
-        border-top: 4px solid #3498db;
-        width: 40px;
-        height: 40px;
-        animation: spin 2s linear infinite;
-        margin-top: 20px;
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
+        border-top: 5px solid #3498db;
+        animation: spin 1.5s linear infinite;
+        margin-bottom: 1rem;
     }
 
     @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Existing styles */
+    .main-content {
+        margin-left: 150px;
+        padding: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .main-content {
+            margin-left: 0;
+            padding: 1rem;
+        }
+        
+        .loading-content {
+            padding: 0 1rem;
+        }
     }
 </style>
 
@@ -54,17 +136,19 @@
     };
 
     document.getElementById('rubricFile').onchange = function(event) {
-        var file = event.target.files[0];
+        const file = event.target.files[0];
         if (file) {
-            document.getElementById('fileName').innerText = file.name;
-            document.getElementById('fileName').style.display = 'inline';
-            var formData = new FormData();
-            formData.append('rubric_file', file);
+            // Show loading overlay
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            document.getElementById('fileName').innerText = "Selected file: " + file.name;
             
-            // Show loader when starting upload
-            document.getElementById('loader').style.display = 'block';
-            document.getElementById('successMessage').style.display = 'none';
-            document.getElementById('errorMessage').style.display = 'none';
+            // Hide previous messages
+            document.getElementById('successMessage').classList.add('d-none');
+            document.getElementById('errorMessage').classList.add('d-none');
+            document.getElementById('extractedMarksList').classList.add('d-none');
+
+            const formData = new FormData();
+            formData.append('rubric_file', file);
 
             fetch("{% url 'upload_rubric' classroom.id %}", {
                 method: 'POST',
@@ -75,27 +159,39 @@
             })
             .then(response => response.json())
             .then(data => {
-                // Hide loader after upload completes
-                document.getElementById('loader').style.display = 'none';
+                // Hide loading overlay
+                document.getElementById('loadingOverlay').style.display = 'none';
 
                 if (data.success) {
-                    document.getElementById('successMessage').style.display = 'block';
-                    document.getElementById('extractedMarksList').style.display = 'block';
-                    document.getElementById('knowledge').innerText = data.knowledge;
-                    document.getElementById('punctuality_submission').innerText = data.performance;
-                    document.getElementById('performance').innerText = data.content_neatness;
-                    document.getElementById('content_neatness').innerText = data.punctuality_submission;
-                    document.getElementById('total_marks').innerText = data.total_marks;
+                    document.getElementById('successMessage').classList.remove('d-none');
+                    document.getElementById('successMessage').innerHTML = `
+                        <i class="fas fa-check-circle me-2"></i>
+                        ${data.message || 'Rubric processed successfully!'}
+                    `;
+                    
+                    // Show results
+                    document.getElementById('extractedMarksList').classList.remove('d-none');
+                    document.getElementById('knowledge').textContent = data.knowledge;
+                    document.getElementById('performance').textContent = data.performance;
+                    document.getElementById('content_neatness').textContent = data.content_neatness;
+                    document.getElementById('punctuality_submission').textContent = data.punctuality_submission;
+                    document.getElementById('total_marks').textContent = data.total_marks;
                 } else {
-                    document.getElementById('errorMessage').style.display = 'block';
-                    console.error('Error:', data.message);
+                    document.getElementById('errorMessage').classList.remove('d-none');
+                    document.getElementById('errorMessage').innerHTML = `
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        ${data.message || 'Error processing rubric'}
+                    `;
                 }
             })
             .catch(error => {
-                // Hide loader if an error occurs
-                document.getElementById('loader').style.display = 'none';
+                document.getElementById('loadingOverlay').style.display = 'none';
+                document.getElementById('errorMessage').classList.remove('d-none');
+                document.getElementById('errorMessage').innerHTML = `
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    Network error: Please check your connection
+                `;
                 console.error('Error:', error);
-                document.getElementById('errorMessage').style.display = 'block';
             });
         }
     };

@@ -3,197 +3,243 @@
 {% block content %}
 {% load static %}
 
-<!-- Main Content -->
+<div class="container-fluid">
+    <div class="main-content" style="margin-left: 1px;">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="dashboard-title">Student Dashboard</h1>
+            <button id="joinClassroomBtn" class="btn btn-success">
+                <i class="fas fa-plus-circle mr-2"></i> Join Classroom
+            </button>
+        </div>
 
-<!-- Header -->
-<div class="header">
-    <h1 class="dashboard-title">Student Dashboard</h1>
-    <button id="joinClassroomBtn" class="btn btn-success">Join Classroom</button>
-</div>
-
-<!-- Classroom List -->
-<div class="dashboard-container">
-    <h2>Your Classrooms</h2>
-    <div class="classroom-container">
-        {% for classroom in classrooms %}
-            <div class="class1">
-                <!-- Classroom Header with Background Image -->
-                <div class="up" style="background: url('/static/img/img_code.jpg'); background-size: cover; background-position: center; height: 150px;">
-                    <div class="overlay">
-                        <p style="color: white; padding-right: 40px">Subject: {{ classroom.subject }}</p> 
+        <!-- Classroom List -->
+        <div class="dashboard-container">
+            <h2 class="mb-4"><i class="fas fa-chalkboard mr-2"></i>Your Classrooms</h2>
+            <div class="row">
+                {% for classroom in classrooms %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="class-card">
+                        <!-- Classroom Header -->
+                        <div class="up" style="background: url('{% static 'img/img_code.jpg' %}'); 
+                             background-size: cover;
+                             background-position: center;
+                             height: 150px;
+                             position: relative;">
+                            <div class="overlay">
+                                <p class="text-light mb-0"><i class="fas fa-book-open mr-1"></i>{{ classroom.subject }}</p>
+                            </div>
+                            <div class="class_id">{{ classroom.name|slice:":1" }}</div>
+                        </div>
+                        <!-- Classroom Details -->
+                        <div class="class_details p-4">
+                            <h3 class="class-name mb-3">{{ classroom.name }}</h3>
+                            <div class="class-meta mb-3">
+                                <p class="mb-1">
+                                    <i class="fas fa-users mr-2"></i>
+                                    <span class="text-muted">Students:</span> {{ classroom.students.count }}
+                                </p>
+                                <p class="mb-0">
+                                    <i class="fas fa-key mr-2"></i>
+                                    <span class="text-muted">Code:</span> {{ classroom.code }}
+                                </p>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-primary btn-block mb-2" 
+                                        onclick="window.location.href='{% url 'view_classroom' classroom.id %}'">
+                                    <i class="fas fa-eye mr-2"></i>View Details
+                                </button>
+                                <a href="{% url 'unenroll_from_classroom' classroom.id %}" 
+                                   class="btn btn-link text-danger btn-sm"
+                                   onclick="return confirm('Are you sure you want to unenroll?');">
+                                    <i class="fas fa-times-circle mr-1"></i>Unenroll
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                    <!-- Single Letter Circle on the Right -->
-                    <div class="class_id">{{ classroom.name|slice:":1" }}</div>
                 </div>
-                <!-- Classroom Details -->
-                <div class="class_details">
-                    <h3>{{ classroom.name }}</h3>
-                    <p class="students-enrolled">Students Enrolled: <strong>{{ classroom.students.count }}</strong></p>
-                    <p>   Classroom Code: <strong>{{ classroom.code }}</strong></p>
-                    <div class="action-buttons">
-                        <button class="btn btn-info mb-2" onclick="window.location.href='{% url 'view_classroom' classroom.id %}'">
-                            View Details
-                        </button>
-                        <a href="{% url 'unenroll_from_classroom' classroom.id %}" class="unenroll-link d-block text-danger" onclick="return confirm('Are you sure you want to unenroll?');">
-                            Unenroll
-                        </a>
-                    </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <i class="fas fa-door-open fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">You have not joined any classrooms yet.</p>
                 </div>
+                {% endfor %}
             </div>
-        {% empty %}
-            <p>You have not joined any classrooms yet.</p>
-        {% endfor %}
+        </div>
+
+        <!-- Join Classroom Popup -->
+        <div id="joinClassroomPopup" class="popup">
+            <div class="popup-content">
+                <span class="close" id="closeJoinPopup">&times;</span>
+                <h3 class="mb-4"><i class="fas fa-sign-in-alt mr-2"></i>Join Classroom</h3>
+                <form method="post" action="{% url 'join_classroom' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                            </div>
+                            <input type="text" name="code" class="form-control" 
+                                   placeholder="Enter classroom code" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Join Classroom
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- Join Classroom Popup -->
-<div id="joinClassroomPopup" class="popup">
-    <div class="popup-content">
-        <span class="close" id="closeJoinPopup">&times;</span>
-        <h3>Join a Classroom</h3>
-        <form method="post" action="{% url 'join_classroom' %}">
-            {% csrf_token %}
-            {{ join_form.as_p }}
-            <button type="submit">Join</button>
-        </form>
-    </div>
-</div>
-
-<!-- Scripts -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    // Toggle Join Classroom Popup
-    $('#joinClassroomBtn').click(function () {
-        $('#joinClassroomPopup').show();
-    });
-
-    $('#closeJoinPopup').click(function () {
-        $('#joinClassroomPopup').hide();
-    });
-
-    $(window).click(function (event) {
-        if (event.target.id === 'joinClassroomPopup') {
-            $('#joinClassroomPopup').hide();
-        }
-    });
-</script>
-
-<!-- CSS -->
 <style>
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-    }
-
-    /* Main Content */
-    .content {
-        margin-left: 250px;
-    }
-
-    /* Header */
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-
-    .dashboard-title {
-        font-size: 24px;
-        font-weight: bold;
-        text-align: center;
-        width: 100%;
-        margin-left: 114px;
-    }
-
-    .btn-success {
-        background-color: #28a745;
-        color: white;
-    }
-
-    .btn-success:hover {
-        background-color: #218838;
-    }
-
-    /* Classroom List */
-    .classroom-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        justify-content: center;
-    }
-
-    .class1 {
-        display: flex;
-        flex-direction: column;
-        width: 268px;
-        height: auto;
-        margin: 15px;
-        border: 1px solid rgba(128, 128, 128, 0.3);
-        border-radius: 3%;
+    .class-card {
+        border: 1px solid rgba(0,0,0,0.125);
+        border-radius: 0.75rem;
         overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        transition: transform 0.2s, box-shadow 0.2s;
+        background: white;
     }
 
-    .up {
-        position: relative;
+    .class-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
     }
 
     .overlay {
         position: absolute;
         bottom: 0;
-        width: 100%;
-        padding: 10px;
+        left: 0;
+        right: 0;
+        background: rgba(0,0,0,0.6);
+        padding: 1rem;
         color: white;
-        text-align: center;
-        background: rgba(0, 0, 0, 0.5);
     }
 
     .class_id {
         position: absolute;
-        top: 10px;
-        right: 10px;
-        background-color: brown;
-        color: white;
-        font-size: 1.5rem;
-        width: 50px;
-        height: 50px;
+        top: 1rem;
+        right: 1rem;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
+        background: #007bff;
+        color: white;
         display: flex;
         align-items: center;
         justify-content: center;
+        font-weight: bold;
+        font-size: 1.2rem;
     }
 
-    .class_details {
-        padding: 15px;
-        text-align: left;
+    .class-name {
+        font-weight: 600;
+        color: #2c3e50;
     }
 
-    .class_details h3 {
-        margin-top: 0;
-        font-size: 18px;
-    }
-
-    .popup {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
+    .class-meta {
+        font-size: 0.9rem;
+        color: #7f8c8d;
     }
 
     .popup-content {
-        background-color: white;
+        background: white;
         margin: 10% auto;
-        padding: 20px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        width: 300px;
-        text-align: center;
+        padding: 2rem;
+        width: 90%;
+        max-width: 400px;
+        border-radius: 0.5rem;
+        box-shadow: 0 1rem 3rem rgba(0,0,0,0.2);
+    }
+
+    .close {
+        position: absolute;
+        top: 1rem;
+        right: 1.5rem;
+        font-size: 2rem;
+        color: #7f8c8d;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .close:hover {
+        color: #2c3e50;
+    }
+
+    /* Popup Styling */
+    .popup {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        overflow-y: auto;
+    }
+    .popup-content {
+        background: white;
+        position: relative;
+        margin: 5% auto;
+        padding: 2rem;
+        width: 90%;
+        max-width: 400px;
+        border-radius: 0.5rem;
+        box-shadow: 0 1rem 3rem rgba(0,0,0,0.2);
+        animation: popupSlide 0.3s ease-out;
+    }
+    @keyframes popupSlide {
+        from {
+            transform: translateY(-50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    .close {
+        position: absolute;
+        top: 1rem;
+        right: 1.5rem;
+        font-size: 2rem;
+        color: #7f8c8d;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    .close:hover {
+        color: #2c3e50;
     }
 </style>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Toggle Join Classroom Popup
+    $(document).ready(function() {
+        $('#joinClassroomPopup').hide(); // Ensure popup is hidden on load
+    });
+
+    $('#joinClassroomBtn').click(function (e) {
+        e.preventDefault();
+        $('#joinClassroomPopup').fadeIn(200);
+    });
+
+    $('#closeJoinPopup').click(function () {
+        $('#joinClassroomPopup').fadeOut(200);
+    });
+
+    $(window).click(function (event) {
+        if (event.target.id === 'joinClassroomPopup') {
+            $('#joinClassroomPopup').fadeOut(200);
+        }
+    });
+
+    // Close with ESC key
+    $(document).keydown(function(e) {
+        if (e.key === "Escape") {
+            $('#joinClassroomPopup').fadeOut(200);
+        }
+    });
+</script>
 {% endblock %}

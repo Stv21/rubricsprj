@@ -18,28 +18,19 @@ Rubricease helps teachers and students manage classroom rubrics efficiently. Stu
 ## Screenshots
 
 ### Rubric Processing
-Before and after processing of rubric images:
+![Processed Rubric with Detected Marks](screenshots/rub_after.png)
+*The system automatically detects and extracts marks from rubric images*
 
-**Before Processing:**  
-![Rubric Before Processing](screenshots/rub_b4.jpg)
-
-**After Processing:**  
-![Rubric After Processing](screenshots/rub_after.png)
-
-### User Dashboards
-
-**Student Dashboard:**  
-![Student Dashboard](screenshots/student_dashboard.png)
-
-**Teacher Dashboard:**  
+### User Interfaces
 ![Teacher Dashboard](screenshots/teacher_dashboard.png)
+*Teacher dashboard for managing classrooms and viewing student performance*
 
-**Student Marks View:**  
-![Student Marks View](screenshots/view_marks(student).png)
+![Student Dashboard](screenshots/student_dashboard.png)
+*Student interface for submitting rubrics and tracking grades*
 
-### Grade Export
-Excel export with student marks:  
-![Excel Grade Export](screenshots/excel)student_names).png)
+### Grade Reports
+![Excel Grade Export](screenshots/excel_grades.png)
+*Exported Excel report showing student marks across experiments*
 
 ## Setup
 

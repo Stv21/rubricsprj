@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Bulk Upload Students{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h2>Bulk Upload Students to {{ classroom.name }}</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-primary">Upload</button>
+  </form>
+  <a href="{% url 'view_classroom' classroom.id %}" class="btn btn-link mt-3">Back to Classroom</a>
+</div>
+{% endblock %}

@@ -21,6 +21,14 @@
 
                 <!-- Upload Section -->
                 <div class="upload-section mb-5">
+                    <div class="form-group mb-3">
+                        <label for="experiment_number" class="form-label">Select Lab/Experiment Number</label>
+                        <select name="experiment_number" class="form-control" id="experiment_number" required>
+                            {% for i in "12345678910"|make_list %}
+                                <option value="{{ i }}">Lab {{ i }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                     <button class="btn btn-primary mb-3" id="uploadButton">
                         <i class="fas fa-upload me-2"></i>Choose Image
                     </button>
@@ -142,13 +150,13 @@
             document.getElementById('loadingOverlay').style.display = 'flex';
             document.getElementById('fileName').innerText = "Selected file: " + file.name;
             
-            // Hide previous messages
-            document.getElementById('successMessage').classList.add('d-none');
-            document.getElementById('errorMessage').classList.add('d-none');
-            document.getElementById('extractedMarksList').classList.add('d-none');
-
+            // Get the experiment number
+            const experimentNumber = document.getElementById('experiment_number').value;
+            
+            // Create form data
             const formData = new FormData();
             formData.append('rubric_file', file);
+            formData.append('experiment_number', experimentNumber);
 
             fetch("{% url 'upload_rubric' classroom.id %}", {
                 method: 'POST',

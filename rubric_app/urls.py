@@ -30,3 +30,21 @@ urlpatterns = [
     path('classroom/<int:classroom_id>/export/', views.export_grades, name='export_grades'),
     path('student/profile/', student_profile, name='student_profile'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+urlpatterns += [
+    path(
+        'classroom/<int:classroom_id>/bulk_upload_students/',
+        views.bulk_create_students,
+        name='bulk_upload_students'
+    ),
+    path(
+        'classroom/<int:classroom_id>/delete_student/<int:student_id>/',
+        views.delete_classroom_student,
+        name='delete_classroom_student'
+    ),
+    path(
+        'classroom/<int:classroom_id>/delete_all_students/',
+        views.delete_all_classroom_students,
+        name='delete_all_classroom_students'
+    ),
+]

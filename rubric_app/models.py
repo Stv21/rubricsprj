@@ -65,6 +65,7 @@ class Rubric(models.Model):
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name="rubrics", blank=True, null=True)
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="rubrics", null=True)
     rubric_file = models.ImageField(upload_to="rubrics/", blank=True, null=True)
+    experiment_number = models.IntegerField(default=1, choices=[(i, f"Lab {i}") for i in range(1, 11)])
     knowledge = models.IntegerField(default=0, blank=True, null=True)
     performance = models.IntegerField(default=0, blank=True, null=True)
     content_neatness = models.IntegerField(default=0, blank=True, null=True)
@@ -73,7 +74,7 @@ class Rubric(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
-        return f"Rubric for {self.student.full_name or self.student.user.username} in {self.classroom.name if self.classroom else 'No Classroom'}"
+        return f"Rubric for {self.student.user.username} in {self.classroom.name if self.classroom else 'No Classroom'} - Lab {self.experiment_number}"
 
 # ✅ Marks Model
 class Marks(models.Model):

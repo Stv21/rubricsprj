@@ -12,9 +12,10 @@ class CustomUserCreationForm(UserCreationForm):
 class RubricUploadForm(forms.ModelForm):
     class Meta:
         model = Rubric
-        fields = ['rubric_file']
+        fields = ['rubric_file', 'experiment_number']
         widgets = {
-            'rubric_file': forms.ClearableFileInput(attrs={'accept': 'image/*'})
+            'rubric_file': forms.ClearableFileInput(attrs={'accept': 'image/*'}),
+            'experiment_number': forms.Select(attrs={'class': 'form-control'}),
         }
 
 class ClassroomForm(forms.ModelForm):
@@ -59,4 +60,7 @@ class StudentProfileForm(forms.ModelForm):
                 'placeholder': 'Enter your roll number'
             })
         }
+
+class ExcelUploadForm(forms.Form):
+    excel_file = forms.FileField(label="Excel file (.xlsx) containing columns: roll_number, name")
 
